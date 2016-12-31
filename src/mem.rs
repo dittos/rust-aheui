@@ -106,7 +106,7 @@ impl Storage for Queue {
 
 pub struct Mem {
     storages: Vec<Box<Storage>>,
-    current_storage_id: StorageId
+    current_storage: *mut Box<Storage>,
 }
 
 impl Mem {
@@ -119,14 +119,15 @@ impl Mem {
                 storages.push(Box::new(Stack::new()));
             }
         }
+        let p = &mut storages[0] as *mut Box<Storage>;
         Mem {
             storages: storages,
-            current_storage_id: 0,
+            current_storage: p,
         }
     }
 
     pub fn switch_to(&mut self, id: StorageId) {
-        self.current_storage_id = id;
+        self.current_storage = &mut self.storages[id as usize] as *mut Box<Storage>;
     }
 
     pub fn push_to(&mut self, id: StorageId, value: StorageValue) {
@@ -134,11 +135,15 @@ impl Mem {
     }
 
     fn current_storage(&self) -> &Box<Storage> {
-        &self.storages[self.current_storage_id as usize]
+        unsafe {
+            &*self.current_storage
+        }
     }
 
     fn current_storage_mut(&mut self) -> &mut Box<Storage> {
-        &mut self.storages[self.current_storage_id as usize]
+        unsafe {
+            &mut *self.current_storage
+        }
     }
 }
 
