@@ -1,3 +1,4 @@
+use std::io;
 use std::char;
 use std::process::exit;
 use cell::*;
@@ -30,12 +31,12 @@ fn stack2<F>(mem: &mut Mem, func: F)
     mem.push(func(y, x));
 }
 
-fn execute_op(op: &Op, mem: &mut Mem) {
+fn execute_op(op: &Op, mem: &mut Mem, writer: &mut io::Write) {
     match *op {
         Op::InputNum => { /* TODO */ },
         Op::InputChar => { /* TODO */ },
-        Op::PrintNum => print!("{}", mem.pop()),
-        Op::PrintChar => print!("{}", char::from_u32(mem.pop() as u32).unwrap()),
+        Op::PrintNum => write!(writer, "{}", mem.pop()).unwrap(),
+        Op::PrintChar => write!(writer, "{}", char::from_u32(mem.pop() as u32).unwrap()).unwrap(),
         Op::Exit => exit(mem.peek()),
         Op::Div => stack2(mem, |x, y| x / y),
         Op::Add => stack2(mem, |x, y| x + y),
@@ -70,6 +71,8 @@ pub fn execute(space: Space) {
     let mut y = 0;
     let mut dx: i32 = 0;
     let mut dy: i32 = 1;
+    let stdout = io::stdout();
+    let mut writer = stdout.lock();
     loop {
         let cell = space.cell_at(x, y);
         let branch = match cell.op {
@@ -78,7 +81,7 @@ pub fn execute(space: Space) {
         };
         let underflow = mem.size() < required_elems(&cell.op);
         if !underflow {
-            execute_op(&cell.op, &mut mem);
+            execute_op(&cell.op, &mut mem, &mut writer);
         };
 
         let (dx2, dy2) = match cell.dir {
