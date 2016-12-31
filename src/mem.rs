@@ -10,6 +10,7 @@ pub trait Storage {
     fn swap(&mut self);
     fn dup(&mut self);
     fn size(&self) -> usize;
+    fn reserve(&mut self, usize);
 }
 
 pub struct Stack {
@@ -53,6 +54,10 @@ impl Storage for Stack {
     fn size(&self) -> usize {
         return self.data.len();
     }
+
+    fn reserve(&mut self, additional: usize) {
+        self.data.reserve(additional);
+    }
 }
 
 pub struct Queue {
@@ -92,6 +97,10 @@ impl Storage for Queue {
 
     fn size(&self) -> usize {
         return self.data.len();
+    }
+
+    fn reserve(&mut self, additional: usize) {
+        self.data.reserve(additional);
     }
 }
 
@@ -156,5 +165,11 @@ impl Storage for Mem {
 
     fn size(&self) -> usize {
         self.current_storage().size()
+    }
+
+    fn reserve(&mut self, additional: usize) {
+        for s in self.storages.iter_mut() {
+            s.reserve(additional);
+        }
     }
 }

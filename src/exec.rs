@@ -67,6 +67,7 @@ fn wrap(pos: i32, size: i32) -> i32 {
 
 pub fn execute(space: Space) {
     let mut mem = Mem::new();
+    mem.reserve(1000); // for benchmark
     let mut x = 0;
     let mut y = 0;
     let mut dx: i32 = 0;
