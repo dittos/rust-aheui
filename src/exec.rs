@@ -37,7 +37,7 @@ fn execute_op(op: &Op, mem: &mut Mem, writer: &mut io::Write) {
         Op::InputChar => { /* TODO */ },
         Op::PrintNum => write!(writer, "{}", mem.pop()).unwrap(),
         Op::PrintChar => write!(writer, "{}", char::from_u32(mem.pop() as u32).unwrap()).unwrap(),
-        Op::Exit => exit(mem.peek()),
+        Op::Exit => { writer.flush().unwrap(); exit(mem.peek()) },
         Op::Div => stack2(mem, |x, y| x / y),
         Op::Add => stack2(mem, |x, y| x + y),
         Op::Mul => stack2(mem, |x, y| x * y),
